@@ -21,5 +21,3 @@ services:
     environment:
       - SERVICES=dynamodb
       - DEBUG=1               # デバッグログをON
-    volumes:
-      - "./aws/init.sh:/etc/localstack/init/ready.d/init.sh" # 初期化スクリプト
