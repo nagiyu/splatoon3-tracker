@@ -1,15 +1,15 @@
 services:
-  nagiyu:
-    build:
-      context: ./nagiyu
-      dockerfile: Dockerfile
-    container_name: "${PROJECT_NAME}_web"
-    ports:
-      - "9019:8080"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-    volumes:
-      - ./nagiyu/bin:/app
+  # nagiyu:
+  #   build:
+  #     context: ./nagiyu
+  #     dockerfile: Dockerfile
+  #   container_name: "${PROJECT_NAME}_web"
+  #   ports:
+  #     - "9019:8080"
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Production
+  #   volumes:
+  #     - ./nagiyu/bin:/app
 
   localstack:
     image: localstack/localstack
@@ -21,3 +21,5 @@ services:
       - DEBUG=1              # デバッグログをON
     volumes:
       - ".aws/init.sh:/etc/localstack/init/ready.d/init.sh" # 初期化スクリプト
+    tmpfs:
+      - /tmp/localstack       # 永続化なし

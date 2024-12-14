@@ -27,20 +27,20 @@ jobs:
     # - name: Add .env
     #   run: echo "${{ secrets.DEVELOP_ENV }}" > containers/.env
 
-    # - name: Update appsettings.json
-    #   run: echo '${{ secrets.DEVELOP_APPSETTINGS }}' > containers/nagiyu/bin/appsettings.json
+    - name: Update appsettings.json
+      run: echo '${{ secrets.APPSETTINGS }}' > containers/nagiyu/bin/appsettings.json
 
-    # - name: Remove Nginx Settings in target path
-    #   uses: appleboy/ssh-action@master
-    #   with:
-    #     host: ${{ secrets.XSERVER_SSH_HOST }}
-    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
-    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
-    #     port: ${{ secrets.XSERVER_SSH_PORT }}
-    #     script: |
-    #       sudo rm -rf /etc/nginx/sites-enabled/sample
-    #       sudo rm -rf /etc/nginx/sites-available/sample
-    #       sudo rm -rf ${{ secrets.DEVELOP_TARGET_PATH }}/nginx
+    - name: Remove Nginx Settings in target path
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.XSERVER_SSH_HOST }}
+        username: ${{ secrets.XSERVER_SSH_USERNAME }}
+        key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.XSERVER_SSH_PORT }}
+        script: |
+          sudo rm -rf /etc/nginx/sites-enabled/sample
+          sudo rm -rf /etc/nginx/sites-available/sample
+          sudo rm -rf ${{ secrets.DEVELOP_TARGET_PATH }}/nginx
 
     - name: Upload Nginx Settings to server
       uses: appleboy/scp-action@master
@@ -64,18 +64,18 @@ jobs:
           sudo ln -s /etc/nginx/sites-available/sample /etc/nginx/sites-enabled/
           sudo systemctl restart nginx
 
-    # - name: Remove all files in target path
-    #   uses: appleboy/ssh-action@master
-    #   with:
-    #     host: ${{ secrets.XSERVER_SSH_HOST }}
-    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
-    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
-    #     port: ${{ secrets.XSERVER_SSH_PORT }}
-    #     script: |
-    #       cd ${{ secrets.DEVELOP_TARGET_PATH }}/containers
-    #       docker compose -f docker-compose.yml -p sample down
-    #       docker volume prune -f && docker image prune -f && docker builder prune -f
-    #       sudo rm -Rf *
+    - name: Remove all files in target path
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.XSERVER_SSH_HOST }}
+        username: ${{ secrets.XSERVER_SSH_USERNAME }}
+        key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.XSERVER_SSH_PORT }}
+        script: |
+          cd ${{ secrets.DEVELOP_TARGET_PATH }}/containers
+          docker compose -f docker-compose.yml -p sample down
+          docker volume prune -f && docker image prune -f && docker builder prune -f
+          sudo rm -Rf *
 
     - name: Upload artifact to server
       uses: appleboy/scp-action@master
