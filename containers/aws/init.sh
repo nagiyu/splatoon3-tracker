@@ -5,5 +5,4 @@ awslocal dynamodb create-table \
   --table-name my-table \
   --attribute-definitions AttributeName=id,AttributeType=S \
   --key-schema AttributeName=id,KeyType=HASH \
-  --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
-  --region ap-northeast-3
+  --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
