@@ -12,12 +12,12 @@ services:
   #     - ./nagiyu/bin:/app
 
   localstack:
-    image: localstack/localstack
+    image: localstack/localstack:4.0.3
     container_name: "${PROJECT_NAME}_localstack"
     ports:
       - "9020:4566" # LocalStackのメインエンドポイント
     environment:
-      - SERVICES=s3,dynamodb
+      - SERVICES=dynamodb
       - DEBUG=1               # デバッグログをON
     volumes:
       - "./aws/init.sh:/etc/localstack/init/ready.d/init.sh" # 初期化スクリプト
