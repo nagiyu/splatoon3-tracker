@@ -12,7 +12,9 @@ services:
   #     - ./nagiyu/bin:/app
 
   localstack:
-    image: localstack/localstack:4.0.3
+    build:
+      context: ./aws
+      dockerfile: Dockerfile
     container_name: "${PROJECT_NAME}_localstack"
     ports:
       - "9020:4566" # LocalStackのメインエンドポイント
