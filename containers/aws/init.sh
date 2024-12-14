@@ -5,8 +5,6 @@ awslocal dynamodb create-table \
   --table-name Auth \
   --attribute-definitions \
     AttributeName=UserId,AttributeType=S \
-    AttributeName=GoogleUserId,AttributeType=S \
-    AttributeName=SampleRole,AttributeType=S \
   --key-schema \
     AttributeName=UserId,KeyType=HASH \
   --global-secondary-indexes \
@@ -19,8 +17,7 @@ awslocal dynamodb create-table \
         "Projection": {
           "ProjectionType": "INCLUDE",
           "NonKeyAttributes": ["UserId", "SampleRole"]
-        },
-        "ProvisionedThroughput": null
+        }
       }
     ]' \
   --billing-mode PAY_PER_REQUEST \
