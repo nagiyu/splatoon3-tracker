@@ -1,0 +1,100 @@
+name: deploy-develop
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Publish with dotnet
+      run: dotnet publish --configuration Release Nagiyu.Web/Nagiyu.Web.csproj
+
+    - name: Copy files
+      run: cp -r Nagiyu.Web/bin/Release/net8.0/publish containers/nagiyu/bin
+
+    # - name: Add .env
+    #   run: echo "${{ secrets.DEVELOP_ENV }}" > containers/.env
+
+    # - name: Update appsettings.json
+    #   run: echo '${{ secrets.DEVELOP_APPSETTINGS }}' > containers/nagiyu/bin/appsettings.json
+
+    # - name: Remove Nginx Settings in target path
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.XSERVER_SSH_HOST }}
+    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
+    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+    #     port: ${{ secrets.XSERVER_SSH_PORT }}
+    #     script: |
+    #       sudo rm -rf /etc/nginx/sites-enabled/nagiyu
+    #       sudo rm -rf /etc/nginx/sites-available/nagiyu
+    #       sudo rm -rf ${{ secrets.DEVELOP_TARGET_PATH }}/nginx
+
+    # - name: Upload Nginx Settings to server
+    #   uses: appleboy/scp-action@master
+    #   with:
+    #     host: ${{ secrets.XSERVER_SSH_HOST }}
+    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
+    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+    #     port: ${{ secrets.XSERVER_SSH_PORT }}
+    #     source: nginx/*
+    #     target: ${{ secrets.DEVELOP_TARGET_PATH }}
+
+    # - name: Replace nginx configuration and Reload nginx
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.XSERVER_SSH_HOST }}
+    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
+    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+    #     port: ${{ secrets.XSERVER_SSH_PORT }}
+    #     script: |
+    #       sudo cp ${{ secrets.DEVELOP_TARGET_PATH }}/nginx/nagiyu /etc/nginx/sites-available/
+    #       sudo ln -s /etc/nginx/sites-available/nagiyu /etc/nginx/sites-enabled/
+    #       sudo systemctl restart nginx
+
+    # - name: Remove all files in target path
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.XSERVER_SSH_HOST }}
+    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
+    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+    #     port: ${{ secrets.XSERVER_SSH_PORT }}
+    #     script: |
+    #       cd ${{ secrets.DEVELOP_TARGET_PATH }}/containers
+    #       docker compose -f docker-compose.yml -p develop_nagiyu down
+    #       docker volume prune -f && docker image prune -f && docker builder prune -f
+    #       sudo rm -Rf *
+
+    # - name: Upload artifact to server
+    #   uses: appleboy/scp-action@master
+    #   with:
+    #     host: ${{ secrets.XSERVER_SSH_HOST }}
+    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
+    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+    #     port: ${{ secrets.XSERVER_SSH_PORT }}
+    #     source: containers/*
+    #     target: ${{ secrets.DEVELOP_TARGET_PATH }}
+
+    # - name: Recreate Nagiyu
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.XSERVER_SSH_HOST }}
+    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
+    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+    #     port: ${{ secrets.XSERVER_SSH_PORT }}
+    #     script: |
+    #       cd ${{ secrets.DEVELOP_TARGET_PATH }}/containers
+    #       docker compose -f docker-compose.yml build --no-cache
+    #       docker compose -f docker-compose.yml -p develop_nagiyu up -d

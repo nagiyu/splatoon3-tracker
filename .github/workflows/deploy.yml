@@ -1,0 +1,119 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Publish with dotnet
+      run: dotnet publish --configuration Release Nagiyu.Web/Nagiyu.Web.csproj
+
+    - name: Copy files
+      run: cp -r Nagiyu.Web/bin/Release/net8.0/publish containers/nagiyu/bin
+
+    # - name: Update appsettings.json
+    #   run: echo '${{ secrets.PRODUCTION_APPSETTINGS }}' > bin/appsettings.json
+
+    # - name: Remove Nginx Settings in target path
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.XSERVER_SSH_HOST }}
+    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
+    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+    #     port: ${{ secrets.XSERVER_SSH_PORT }}
+    #     script: |
+    #       sudo rm -rf /etc/nginx/sites-enabled/nagiyu
+    #       sudo rm -rf /etc/nginx/sites-available/nagiyu
+    #       sudo rm -rf ${{ secrets.PRODUCTION_TARGET_PATH }}/nginx
+
+    # - name: Upload Nginx Settings to server
+    #   uses: appleboy/scp-action@master
+    #   with:
+    #     host: ${{ secrets.XSERVER_SSH_HOST }}
+    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
+    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+    #     port: ${{ secrets.XSERVER_SSH_PORT }}
+    #     source: nginx/*
+    #     target: ${{ secrets.PRODUCTION_TARGET_PATH }}
+
+    # - name: Replace nginx configuration and Reload nginx
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.XSERVER_SSH_HOST }}
+    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
+    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+    #     port: ${{ secrets.XSERVER_SSH_PORT }}
+    #     script: |
+    #       sudo cp ${{ secrets.PRODUCTION_TARGET_PATH }}/nginx/nagiyu /etc/nginx/sites-available/
+    #       sudo ln -s /etc/nginx/sites-available/nagiyu /etc/nginx/sites-enabled/
+    #       sudo systemctl restart nginx
+
+    # - name: Public IP Install
+    #   id: ip
+    #   uses: haythem/public-ip@v1.3
+
+    # - name: AWS CLI install
+    #   run: |
+    #     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    #     unzip awscliv2.zip
+    #     sudo ./aws/install --update
+    #     aws --version
+
+    # - name: AWS set Credentials
+    #   uses: aws-actions/configure-aws-credentials@v1
+    #   with:
+    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     aws-region: ${{ secrets.AWS_REGION }}
+
+    # - name: Open SecurityGroup
+    #   run: aws ec2 authorize-security-group-ingress --group-id ${{ secrets.EC2_SECURITY_GROUP_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+    # - name: Remove all files in target path
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.AWS_SSH_HOST }}
+    #     username: ${{ secrets.AWS_SSH_USERNAME }}
+    #     key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+    #     port: ${{ secrets.AWS_SSH_PORT }}
+    #     script: |
+    #       kill $(ps aux | grep '[d]otnet' | awk '{print $2}')
+    #       cd /home/ec2-user/nagiyu/bin
+    #       sudo rm -Rf *
+
+    # - name: Upload artifact to server
+    #   uses: appleboy/scp-action@master
+    #   with:
+    #     host: ${{ secrets.AWS_SSH_HOST }}
+    #     username: ${{ secrets.AWS_SSH_USERNAME }}
+    #     key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+    #     port: ${{ secrets.AWS_SSH_PORT }}
+    #     source: bin/*
+    #     target: /home/ec2-user/nagiyu
+
+    # - name: Recreate Nagiyu
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.AWS_SSH_HOST }}
+    #     username: ${{ secrets.AWS_SSH_USERNAME }}
+    #     key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+    #     port: ${{ secrets.AWS_SSH_PORT }}
+    #     script: |
+    #       cd /home/ec2-user/nagiyu/bin
+    #       nohup dotnet Nagiyu.Web.dll --urls "http://0.0.0.0:5000" > /home/ec2-user/output.log 2>&1 &
+
+    # - name: Close SecurityGroup
+    #   run: aws ec2 revoke-security-group-ingress --group-id ${{ secrets.EC2_SECURITY_GROUP_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
