@@ -73,7 +73,7 @@ jobs:
         port: ${{ secrets.XSERVER_SSH_PORT }}
         script: |
           cd ${{ secrets.DEVELOP_TARGET_PATH }}/containers
-          docker compose -f docker-compose.yml -p sample down
+          docker compose -f docker-compose.yml -p sample down --rmi all --volumes --remove-orphans
           docker volume prune -f && docker image prune -f && docker builder prune -f
           sudo rm -Rf *
 
