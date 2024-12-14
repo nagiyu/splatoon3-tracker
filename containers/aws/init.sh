@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# 必要なS3バケットを作成
+awslocal s3api create-bucket --bucket health
+
 # 必要なDynamoDBテーブルを作成する
 awslocal dynamodb create-table \
   --table-name my-table \
