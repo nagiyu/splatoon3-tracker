@@ -19,5 +19,5 @@ services:
     ports:
       - "9020:4566" # LocalStackのメインエンドポイント
     environment:
-      - SERVICES=dynamodb
+      - SERVICES=kms,dynamodb
       - DEBUG=1               # デバッグログをON
