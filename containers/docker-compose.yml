@@ -20,6 +20,6 @@ services:
       - SERVICES=dynamodb    # DynamoDBだけ有効化
       - DEBUG=1              # デバッグログをON
     volumes:
-      - "aws/init.sh:/etc/localstack/init/ready.d/init.sh" # 初期化スクリプト
+      - "./aws/init.sh:/etc/localstack/init/ready.d/init.sh" # 初期化スクリプト
     tmpfs:
       - /tmp/localstack       # 永続化なし
