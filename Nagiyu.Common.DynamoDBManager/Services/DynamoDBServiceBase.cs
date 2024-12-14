@@ -38,8 +38,7 @@ namespace Nagiyu.Common.DynamoDBManager.Services
                 // ServiceURLが指定された場合
                 config = new AmazonDynamoDBConfig
                 {
-                    ServiceURL = serviceUrl,                    // LocalStackやカスタムエンドポイントを指定
-                    RegionEndpoint = RegionEndpoint.GetBySystemName(region) // 必要ならリージョンも設定
+                    ServiceURL = serviceUrl
                 };
             }
             else
