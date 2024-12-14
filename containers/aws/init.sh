@@ -3,8 +3,11 @@
 # DynamoDB テーブル「Auth」を作成
 awslocal dynamodb create-table \
   --table-name Auth \
-  --attribute-definitions AttributeName=UserId,AttributeType=S \
-  --key-schema AttributeName=UserId,KeyType=HASH \
+  --attribute-definitions \
+    AttributeName=UserId,AttributeType=S \
+    AttributeName=GoogleUserId,AttributeType=S \
+  --key-schema \
+    AttributeName=UserId,KeyType=HASH \
   --global-secondary-indexes \
     '[
       {
