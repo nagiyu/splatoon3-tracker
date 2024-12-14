@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nagiyu.Common", "Nagiyu.Common", "{3F440E6F-A692-480A-AE6C-552D6EA96A21}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nagiyu.Web", "Nagiyu.Web\Nagiyu.Web.csproj", "{3FD299BF-6357-48AA-AC61-A7E4738E4DA7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nagiyu.Common.Auth", "Nagiyu.Common.Auth\Nagiyu.Common.Auth.csproj", "{8BC424EF-EF82-4818-B6FF-35D3F2EBEC7B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nagiyu.Common.DynamoDBManager", "Nagiyu.Common.DynamoDBManager\Nagiyu.Common.DynamoDBManager.csproj", "{0B5A9456-22E4-4B0E-99B4-1C34F9989832}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nagiyu", "Nagiyu", "{62078E8B-65A4-422C-BA2A-5C05CBDE0530}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3FD299BF-6357-48AA-AC61-A7E4738E4DA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FD299BF-6357-48AA-AC61-A7E4738E4DA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FD299BF-6357-48AA-AC61-A7E4738E4DA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FD299BF-6357-48AA-AC61-A7E4738E4DA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BC424EF-EF82-4818-B6FF-35D3F2EBEC7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BC424EF-EF82-4818-B6FF-35D3F2EBEC7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BC424EF-EF82-4818-B6FF-35D3F2EBEC7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BC424EF-EF82-4818-B6FF-35D3F2EBEC7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B5A9456-22E4-4B0E-99B4-1C34F9989832}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B5A9456-22E4-4B0E-99B4-1C34F9989832}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B5A9456-22E4-4B0E-99B4-1C34F9989832}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B5A9456-22E4-4B0E-99B4-1C34F9989832}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8BC424EF-EF82-4818-B6FF-35D3F2EBEC7B} = {3F440E6F-A692-480A-AE6C-552D6EA96A21}
+		{0B5A9456-22E4-4B0E-99B4-1C34F9989832} = {3F440E6F-A692-480A-AE6C-552D6EA96A21}
+	EndGlobalSection
+EndGlobal
