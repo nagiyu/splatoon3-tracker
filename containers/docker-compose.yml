@@ -5,9 +5,10 @@ services:
       dockerfile: Dockerfile
     container_name: "${PROJECT_NAME}_web"
     ports:
-      - "9019:8080"
+      - "9019:443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=https://+:443 # Kestrel に HTTPS 用ポートを設定
     volumes:
       - ./nagiyu/bin:/app
       - ./nagiyu/fullchain.pem:/etc/letsencrypt/fullchain.pem
