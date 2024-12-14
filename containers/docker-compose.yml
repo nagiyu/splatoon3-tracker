@@ -1,0 +1,12 @@
+services:
+  nagiyu:
+    build:
+      context: ./nagiyu
+      dockerfile: Dockerfile
+    container_name: "${PROJECT_NAME}"
+    ports:
+      - "${PORT}:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    volumes:
+      - ./nagiyu/bin:/app
