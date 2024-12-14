@@ -34,8 +34,9 @@ namespace Nagiyu.Common.Auth.Services
             var accessKey = configuration["Auth:Credentials:AWS:AccessKey"];
             var secretKey = configuration["Auth:Credentials:AWS:SecretKey"];
             var region = configuration["Auth:Credentials:AWS:Region"];
+            var serviceUrl = configuration["Auth:Credentials:AWS:ServiceUrl"];
 
-            InitializeClient(accessKey, secretKey, region);
+            InitializeClient(accessKey, secretKey, region, serviceUrl);
 
             tableName = configuration["Auth:DynamoDB:TableName"];
             indexName = configuration["Auth:DynamoDB:IndexName"];

@@ -28,9 +28,33 @@ namespace Nagiyu.Common.DynamoDBManager.Services
         /// <param name="accessKey">アクセスキー</param>
         /// <param name="secretKey">シークレットキー</param>
         /// <param name="region">リージョン</param>
-        protected void InitializeClient(string accessKey, string secretKey, string region)
+        /// <param name="serviceUrl">サービス URL</param>
+        protected void InitializeClient(string accessKey, string secretKey, string region, string serviceUrl = null)
         {
-            client = new AmazonDynamoDBClient(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
+            AmazonDynamoDBConfig config;
+
+            if (!string.IsNullOrEmpty(serviceUrl))
+            {
+                // ServiceURLが指定された場合
+                config = new AmazonDynamoDBConfig
+                {
+                    ServiceURL = serviceUrl,                    // LocalStackやカスタムエンドポイントを指定
+                    RegionEndpoint = RegionEndpoint.GetBySystemName(region) // 必要ならリージョンも設定
+                };
+            }
+            else
+            {
+                // ServiceURLが指定されていない場合
+                config = new AmazonDynamoDBConfig
+                {
+                    RegionEndpoint = RegionEndpoint.GetBySystemName(region) // AWS本番環境向け
+                };
+            }
+
+            // DynamoDBクライアントを初期化
+            client = new AmazonDynamoDBClient(accessKey, secretKey, config);
+
+            // DynamoDBContextを初期化
             context = new DynamoDBContext(client);
         }
 
