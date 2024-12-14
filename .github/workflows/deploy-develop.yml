@@ -27,6 +27,11 @@ jobs:
     # - name: Add .env
     #   run: echo "${{ secrets.DEVELOP_ENV }}" > containers/.env
 
+    - name: Add Certificates
+      run: |
+        echo '${{ secrets.DEVELOP_FULLCHAIN }}' > containers/nagiyu/fullchain.pem
+        echo '${{ secrets.DEVELOP_PRIVATE_KEY }}' > containers/nagiyu/privkey.pem
+
     - name: Update appsettings.json
       run: echo '${{ secrets.DEVELOP_APPSETTINGS }}' > containers/nagiyu/bin/appsettings.json
 
