@@ -17,6 +17,9 @@
         ]
     },
     "settings": {
-        "editor.renderWhitespace": "boundary"
+        "editor.renderWhitespace": "boundary",
+        "[shellscript]": {
+            "editor.tabSize": 2
+        }
     },
 }

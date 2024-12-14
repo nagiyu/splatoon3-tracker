@@ -3,10 +3,21 @@ services:
     build:
       context: ./nagiyu
       dockerfile: Dockerfile
-    container_name: "${PROJECT_NAME}"
+    container_name: "${PROJECT_NAME}_web"
     ports:
-      - "${PORT}:8080"
+      - "9019:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
     volumes:
       - ./nagiyu/bin:/app
+
+  localstack:
+    image: localstack/localstack
+    container_name: "${PROJECT_NAME}_localstack"
+    ports:
+      - "9020:4566" # LocalStackのメインエンドポイント
+    environment:
+      - SERVICES=dynamodb    # DynamoDBだけ有効化
+      - DEBUG=1              # デバッグログをON
+    volumes:
+      - ".aws/init.sh:/etc/localstack/init/ready.d/init.sh" # 初期化スクリプト
