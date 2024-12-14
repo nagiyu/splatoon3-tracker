@@ -28,7 +28,7 @@ jobs:
     #   run: echo "${{ secrets.DEVELOP_ENV }}" > containers/.env
 
     - name: Update appsettings.json
-      run: echo '${{ secrets.APPSETTINGS }}' > containers/nagiyu/bin/appsettings.json
+      run: echo '${{ secrets.DEVELOP_APPSETTINGS }}' > containers/nagiyu/bin/appsettings.json
 
     - name: Remove Nginx Settings in target path
       uses: appleboy/ssh-action@master
