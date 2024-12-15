@@ -5,6 +5,7 @@ awslocal dynamodb create-table \
   --table-name Auth \
   --attribute-definitions \
     AttributeName=UserId,AttributeType=S \
+    AttributeName=UserName,AttributeType=S \
     AttributeName=GoogleUserId,AttributeType=S \
   --key-schema \
     AttributeName=UserId,KeyType=HASH \
@@ -17,7 +18,7 @@ awslocal dynamodb create-table \
         ],
         "Projection": {
           "ProjectionType": "INCLUDE",
-          "NonKeyAttributes": ["UserId", "SampleRole"]
+          "NonKeyAttributes": ["UserId", "UserName"]
         }
       }
     ]' \
