@@ -3,7 +3,7 @@ using Amazon.DynamoDBv2.Model;
 using System;
 using System.Collections.Generic;
 
-namespace Nagiyu.Common.Auth.Models
+namespace Nagiyu.Common.Auth.Service.Models
 {
     /// <summary>
     /// ユーザー認証情報の基底クラス

@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Nagiyu.Common.Auth.Models;
-using Nagiyu.Common.Auth.Services;
-using System;
-using System.Linq;
-using System.Security.Claims;
+using Nagiyu.Common.Auth.Service.Models;
+using Nagiyu.Common.Auth.Service.Services;
 using System.Threading.Tasks;
 
-namespace Nagiyu.Web.Middlewares
+namespace Nagiyu.Common.Auth.Web.Middlewares
 {
     /// <summary>
     /// Google 認証ミドルウェア
@@ -44,33 +41,15 @@ namespace Nagiyu.Web.Middlewares
             // 認証状態の確認
             if (context.User.Identity?.IsAuthenticated ?? false)
             {
-                var claims = context.User.Claims;
-                var googleUserId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                var user = await authService.GetUser<UserAuthBase>();
 
-                var userId = await GetUserId(googleUserId);
-
-                var identity = new ClaimsIdentity(context.User.Identity);
-                identity.AddClaim(new Claim(nameof(UserAuthBase.UserId), userId.ToString()));
-
-                context.User = new ClaimsPrincipal(identity);
+                if (user == null)
+                {
+                    await authService.AddUser(string.Empty);
+                }
             }
 
             await _next(context);
-        }
-
-        /// <summary>
-        /// ユーザー ID を取得する
-        /// </summary>
-        /// <param name="googleUserId">Google ユーザー ID</param>
-        /// <returns>ユーザー ID</returns>
-        private async Task<Guid> GetUserId(string googleUserId)
-        {
-            if (!await authService.IsExistUserByGoogle(googleUserId))
-            {
-                return await authService.AddUserByGoogle(googleUserId);
-            }
-
-            return Guid.Parse(await authService.GetUserIdByGoogle(googleUserId));
         }
     }
 }
