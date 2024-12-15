@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# DynamoDB テーブル「Auth」を作成
+# DynamoDB テーブル「Auth」を作成 TODO: インデックス名は書き換え
 awslocal dynamodb create-table \
   --table-name Auth \
   --attribute-definitions \

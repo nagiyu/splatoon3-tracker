@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nagiyu.Common.Auth.Services;
-using Nagiyu.Sample.Controllers;
 using Nagiyu.Web.Middlewares;
 using System.Security.Cryptography.X509Certificates;
 
@@ -37,8 +36,7 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 // Add services to the container.
-builder.Services.AddControllersWithViews()
-    .AddApplicationPart(typeof(SampleController).Assembly);
+builder.Services.AddControllersWithViews();
 
 builder.Services
     .AddAuthentication(options =>

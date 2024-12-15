@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nagiyu.Common.DynamoDBManag
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nagiyu", "Nagiyu", "{62078E8B-65A4-422C-BA2A-5C05CBDE0530}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nagiyu.Sample", "Nagiyu.Sample\Nagiyu.Sample.csproj", "{1AEBDE14-1E8D-4E67-855A-35F3579D0F96}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,10 +31,6 @@ Global
 		{0B5A9456-22E4-4B0E-99B4-1C34F9989832}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B5A9456-22E4-4B0E-99B4-1C34F9989832}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B5A9456-22E4-4B0E-99B4-1C34F9989832}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1AEBDE14-1E8D-4E67-855A-35F3579D0F96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1AEBDE14-1E8D-4E67-855A-35F3579D0F96}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1AEBDE14-1E8D-4E67-855A-35F3579D0F96}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1AEBDE14-1E8D-4E67-855A-35F3579D0F96}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -44,6 +38,5 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{8BC424EF-EF82-4818-B6FF-35D3F2EBEC7B} = {3F440E6F-A692-480A-AE6C-552D6EA96A21}
 		{0B5A9456-22E4-4B0E-99B4-1C34F9989832} = {3F440E6F-A692-480A-AE6C-552D6EA96A21}
-		{1AEBDE14-1E8D-4E67-855A-35F3579D0F96} = {62078E8B-65A4-422C-BA2A-5C05CBDE0530}
 	EndGlobalSection
 EndGlobal

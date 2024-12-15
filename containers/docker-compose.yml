@@ -5,10 +5,10 @@ services:
       dockerfile: Dockerfile
     container_name: "${PROJECT_NAME}_web"
     ports:
-      - "9019:443"
+      - "xxx:443" # TODO: 書き換え
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=https://+:443 # Kestrel に HTTPS 用ポートを設定
+      - ASPNETCORE_URLS=https://+:443
     volumes:
       - ./nagiyu/bin:/app
       - ./nagiyu/fullchain.pem:/etc/letsencrypt/fullchain.pem
@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
     container_name: "${PROJECT_NAME}_localstack"
     ports:
-      - "9020:4566" # LocalStackのメインエンドポイント
+      - "xxx:4566" # TODO: 書き換え
     environment:
       - SERVICES=kms,dynamodb
-      - DEBUG=1               # デバッグログをON
+      - DEBUG=1
