@@ -11,7 +11,7 @@ awslocal dynamodb create-table \
   --global-secondary-indexes \
     '[
       {
-        "IndexName": "GoogleUserId-index",
+        "IndexName": "GoogleUserId-index-20241215",
         "KeySchema": [
           { "AttributeName": "GoogleUserId", "KeyType": "HASH" }
         ],
