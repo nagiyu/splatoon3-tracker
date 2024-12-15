@@ -14,9 +14,14 @@
             "wmaurer.change-case",
             "adpyke.vscode-sql-formatter",
             "ms-vscode-remote.remote-ssh",
+            "ahmadalli.vscode-nginx-conf",
+            "wayou.vscode-todo-highlight",
         ]
     },
     "settings": {
-        "editor.renderWhitespace": "boundary"
+        "editor.renderWhitespace": "boundary",
+        "[shellscript]": {
+            "editor.tabSize": 2
+        }
     },
 }

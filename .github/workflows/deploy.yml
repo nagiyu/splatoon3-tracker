@@ -24,6 +24,11 @@ jobs:
     - name: Copy files
       run: cp -r Nagiyu.Web/bin/Release/net8.0/publish containers/nagiyu/bin
 
+    # - name: Add Certificates
+    #   run: |
+    #     echo '${{ secrets.PRODUCTION_FULLCHAIN }}' > containers/nagiyu/fullchain.pem
+    #     echo '${{ secrets.PRODUCTION_PRIVATE_KEY }}' > containers/nagiyu/privkey.pem
+
     # - name: Update appsettings.json
     #   run: echo '${{ secrets.PRODUCTION_APPSETTINGS }}' > bin/appsettings.json
 
