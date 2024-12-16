@@ -7,7 +7,9 @@ using Microsoft.Extensions.Hosting;
 using Nagiyu.Common.Auth.Service.Services;
 using Nagiyu.Common.Auth.Web.Controllers;
 using Nagiyu.Common.Auth.Web.Middlewares;
-using Nagiyu.Sample.Controllers;
+using Nagiyu.Sample.Service.Handlers;
+using Nagiyu.Sample.Service.Policies;
+using Nagiyu.Sample.Web.Controllers;
 using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,6 +61,11 @@ builder.Services
     });
 
 // ポリシー、ハンドラーの設定
+builder.Services.AddAuthorization(options =>
+{
+    options.AddSamplePolicy();
+});
+builder.Services.AddSampleHandler();
 
 var app = builder.Build();
 

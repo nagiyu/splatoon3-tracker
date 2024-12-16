@@ -7,7 +7,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Nagiyu.Auth.Web\Nagiyu.Common.Auth.Web.csproj" />
-    <ProjectReference Include="..\Nagiyu.Sample\Nagiyu.Sample.csproj" />
+    <ProjectReference Include="..\Nagiyu.Sample.Service\Nagiyu.Sample.Service.csproj" />
+    <ProjectReference Include="..\Nagiyu.Sample\Nagiyu.Sample.Web.csproj" />
   </ItemGroup>
 
 </Project>

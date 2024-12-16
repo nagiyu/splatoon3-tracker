@@ -88,5 +88,17 @@ namespace Nagiyu.Common.Auth.Web.Controllers
 
             return Redirect("/");
         }
+
+        /// <summary>
+        /// アクセス拒否
+        /// </summary>
+        /// <param name="returnUrl">URL</param>
+        /// <returns>ActionResult</returns>
+        [HttpGet]
+        public IActionResult AccessDenied(string returnUrl)
+        {
+            ViewBag.ReturnUrl = returnUrl;
+            return View();
+        }
     }
 }

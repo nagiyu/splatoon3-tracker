@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Nagiyu.Sample.Controllers
+namespace Nagiyu.Sample.Web.Controllers
 {
     /// <summary>
     /// サンプルコントローラー
@@ -10,6 +11,7 @@ namespace Nagiyu.Sample.Controllers
         /// <summary>
         /// インデックス
         /// </summary>
+        [Authorize(Policy = "SamplePolicy")]
         public IActionResult Index()
         {
             return View();
