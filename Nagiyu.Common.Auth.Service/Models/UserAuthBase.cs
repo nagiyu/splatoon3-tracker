@@ -3,7 +3,7 @@ using Amazon.DynamoDBv2.Model;
 using System;
 using System.Collections.Generic;
 
-namespace Nagiyu.Common.Auth.Models
+namespace Nagiyu.Common.Auth.Service.Models
 {
     /// <summary>
     /// ユーザー認証情報の基底クラス
@@ -15,6 +15,12 @@ namespace Nagiyu.Common.Auth.Models
         /// </summary>
         [DynamoDBHashKey]
         public Guid UserId { get; set; }
+
+        /// <summary>
+        /// ユーザー名
+        /// </summary>
+        [DynamoDBProperty]
+        public string UserName { get; set; }
 
         /// <summary>
         /// Google ユーザー ID
@@ -42,6 +48,15 @@ namespace Nagiyu.Common.Auth.Models
             else
             {
                 UserId = Guid.Empty;
+            }
+
+            if (keyValuePairs.TryGetValue(nameof(UserName), out var userName))
+            {
+                UserName = userName.S;
+            }
+            else
+            {
+                UserName = string.Empty;
             }
 
             if (keyValuePairs.TryGetValue(nameof(GoogleUserId), out var googleUserIdValue))

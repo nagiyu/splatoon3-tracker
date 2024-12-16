@@ -3,10 +3,24 @@ services:
     build:
       context: ./nagiyu
       dockerfile: Dockerfile
-    container_name: "${PROJECT_NAME}"
+    container_name: "${PROJECT_NAME}_web"
     ports:
-      - "${PORT}:8080"
+      - "xxx:443" # TODO: 書き換え
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=https://+:443
     volumes:
       - ./nagiyu/bin:/app
+      - ./nagiyu/fullchain.pem:/etc/letsencrypt/fullchain.pem
+      - ./nagiyu/privkey.pem:/etc/letsencrypt/privkey.pem
+
+  localstack:
+    build:
+      context: ./aws
+      dockerfile: Dockerfile
+    container_name: "${PROJECT_NAME}_localstack"
+    ports:
+      - "xxx:4566" # TODO: 書き換え
+    environment:
+      - SERVICES=kms,dynamodb
+      - DEBUG=1
