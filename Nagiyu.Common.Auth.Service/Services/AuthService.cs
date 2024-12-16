@@ -1,20 +1,27 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Nagiyu.Common.Auth.Models;
+using Nagiyu.Common.Auth.Service.Models;
 using Nagiyu.Common.DynamoDBManager.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Nagiyu.Common.Auth.Services
+namespace Nagiyu.Common.Auth.Service.Services
 {
     /// <summary>
     /// 認証サービス
     /// </summary>
     public class AuthService : DynamoDBServiceBase
     {
+        /// <summary>
+        /// HTTP コンテキストアクセサ
+        /// </summary>
+        private readonly IHttpContextAccessor httpContextAccessor;
+
         /// <summary>
         /// テーブル名
         /// </summary>
@@ -29,8 +36,10 @@ namespace Nagiyu.Common.Auth.Services
         /// コンストラクタ
         /// </summary>
         /// <param name="configuration">設定情報</param>
-        public AuthService(IConfiguration configuration)
+        public AuthService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
+            this.httpContextAccessor = httpContextAccessor;
+
             var accessKey = configuration["Auth:Credentials:AWS:AccessKey"];
             var secretKey = configuration["Auth:Credentials:AWS:SecretKey"];
             var region = configuration["Auth:Credentials:AWS:Region"];
@@ -43,64 +52,45 @@ namespace Nagiyu.Common.Auth.Services
         }
 
         /// <summary>
-        /// ユーザー ID からユーザー情報を取得する
+        /// ユーザー情報を取得する
         /// </summary>
-        /// <param name="userId">ユーザー ID</param>
         /// <returns>ユーザー情報</returns>
-        public async Task<Dictionary<string, AttributeValue>> GetUserByUserId<T>(Guid userId) where T : UserAuthBase
+        /// <remarks>未認証: null, 認証済: ユーザー情報</remarks>
+        public async Task<T> GetUser<T>() where T : UserAuthBase
         {
-            var items = await GetItems(tableName, null, nameof(UserAuthBase.UserId), userId.ToString());
+            var googleUserId = GetGoogleUserId();
+
+            if (string.IsNullOrEmpty(googleUserId))
+            {
+                return null;
+            }
+
+            var items = await GetItems(tableName, indexName, nameof(UserAuthBase.GoogleUserId), googleUserId);
 
             if (items.Count == 0)
             {
                 return null;
             }
 
-            return items.FirstOrDefault();
+            var item = items.FirstOrDefault();
+
+            return (T)Activator.CreateInstance(typeof(T), item);
         }
 
         /// <summary>
-        /// Google ユーザー ID からユーザー ID を取得する
+        /// ユーザーを追加する
         /// </summary>
-        /// <param name="googleUserId">Google ユーザー ID</param>
+        /// <param name="userName">ユーザー名</param>
         /// <returns>ユーザー ID</returns>
-        public async Task<string> GetUserIdByGoogle(string googleUserId)
-        {
-            var items = await GetItems(tableName, indexName, nameof(UserAuthBase.GoogleUserId), googleUserId);
-
-            if (items.Count == 0)
-            {
-                return null;
-            }
-
-            items.FirstOrDefault().TryGetValue(nameof(UserAuthBase.UserId), out var userId);
-
-            return userId.S;
-        }
-
-        /// <summary>
-        /// Google ユーザーが存在するかどうかを取得する
-        /// </summary>
-        /// <param name="googleUserId">Google ユーザー ID</param>
-        /// <returns>Google ユーザーが存在する場合は true、それ以外は false</returns>
-        public async Task<bool> IsExistUserByGoogle(string googleUserId)
-        {
-            var items = await GetItems(tableName, indexName, nameof(UserAuthBase.GoogleUserId), googleUserId);
-
-            return items.Count > 0;
-        }
-
-        /// <summary>
-        /// Google ユーザーを追加する
-        /// </summary>
-        /// <param name="googleUserId">Google ユーザー ID</param>
-        public async Task<Guid> AddUserByGoogle(string googleUserId)
+        public async Task<Guid> AddUser(string userName)
         {
             var userId = Guid.NewGuid();
+            var googleUserId = GetGoogleUserId();
 
             var user = new UserAuthBase
             {
                 UserId = userId,
+                UserName = userName,
                 GoogleUserId = googleUserId
             };
 
@@ -145,6 +135,15 @@ namespace Nagiyu.Common.Auth.Services
             }
 
             await UpdateProperties(tableName, nameof(UserAuthBase.UserId), user.UserId.ToString(), properties);
+        }
+
+        /// <summary>
+        /// Google ユーザー ID を取得する
+        /// </summary>
+        /// <returns>Google ユーザー ID</returns>
+        private string GetGoogleUserId()
+        {
+            return httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
         }
     }
 }
