@@ -43,17 +43,17 @@ jobs:
     - name: Update appsettings.json
       run: echo '${{ secrets.PRODUCTION_APPSETTINGS }}' > containers/nagiyu/bin/appsettings.json
 
-    - name: Remove Nginx Settings in target path
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.XSERVER_SSH_HOST }}
-        username: ${{ secrets.XSERVER_SSH_USERNAME }}
-        key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
-        port: ${{ secrets.XSERVER_SSH_PORT }}
-        script: |
-          sudo rm -rf /etc/nginx/sites-enabled/nagiyu
-          sudo rm -rf /etc/nginx/sites-available/nagiyu
-          sudo rm -rf ${{ secrets.PRODUCTION_TARGET_PATH }}/nginx
+    # - name: Remove Nginx Settings in target path
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.XSERVER_SSH_HOST }}
+    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
+    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+    #     port: ${{ secrets.XSERVER_SSH_PORT }}
+    #     script: |
+    #       sudo rm -rf /etc/nginx/sites-enabled/splatoon3-tracker
+    #       sudo rm -rf /etc/nginx/sites-available/splatoon3-tracker
+    #       sudo rm -rf ${{ secrets.PRODUCTION_TARGET_PATH }}/nginx
 
     - name: Upload Nginx Settings to server
       uses: appleboy/scp-action@master
@@ -73,8 +73,8 @@ jobs:
         key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
         port: ${{ secrets.XSERVER_SSH_PORT }}
         script: |
-          sudo cp ${{ secrets.PRODUCTION_TARGET_PATH }}/nginx/nagiyu /etc/nginx/sites-available/
-          sudo ln -s /etc/nginx/sites-available/nagiyu /etc/nginx/sites-enabled/
+          sudo cp ${{ secrets.PRODUCTION_TARGET_PATH }}/nginx/splatoon3-tracker /etc/nginx/sites-available/
+          sudo ln -s /etc/nginx/sites-available/splatoon3-tracker /etc/nginx/sites-enabled/
           sudo systemctl restart nginx
 
     - name: Public IP Install
@@ -98,17 +98,17 @@ jobs:
     - name: Open SecurityGroup
       run: aws ec2 authorize-security-group-ingress --group-id ${{ secrets.EC2_SECURITY_GROUP_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
-    - name: Remove all files in target path
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.AWS_SSH_HOST }}
-        username: ${{ secrets.AWS_SSH_USERNAME }}
-        key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
-        port: ${{ secrets.AWS_SSH_PORT }}
-        script: |
-          kill $(ps aux | grep '[d]otnet' | awk '{print $2}')
-          cd /home/ec2-user/nagiyu/bin
-          sudo rm -Rf *
+    # - name: Remove all files in target path
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.AWS_SSH_HOST }}
+    #     username: ${{ secrets.AWS_SSH_USERNAME }}
+    #     key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+    #     port: ${{ secrets.AWS_SSH_PORT }}
+    #     script: |
+    #       kill $(ps aux | grep '[d]otnet' | awk '{print $2}')
+    #       cd /home/ec2-user/splatoon3-tracker/bin
+    #       sudo rm -Rf *
 
     - name: Upload artifact to server
       uses: appleboy/scp-action@master
@@ -118,9 +118,9 @@ jobs:
         key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
         port: ${{ secrets.AWS_SSH_PORT }}
         source: bin/*
-        target: /home/ec2-user/nagiyu
+        target: /home/ec2-user/splatoon3-tracker
 
-    - name: Recreate Nagiyu
+    - name: Recreate Splatoon3 Tracker
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.AWS_SSH_HOST }}
@@ -128,7 +128,7 @@ jobs:
         key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
         port: ${{ secrets.AWS_SSH_PORT }}
         script: |
-          cd /home/ec2-user/nagiyu/bin
+          cd /home/ec2-user/splatoon3-tracker/bin
           nohup dotnet Nagiyu.Web.dll --urls "http://0.0.0.0:5000" > /home/ec2-user/output.log 2>&1 &
 
     - name: Close SecurityGroup
