@@ -65,16 +65,3 @@ server {
 		proxy_set_header X-Forwarded-Proto $scheme;
 	}
 }
-
-##### ##### #####
-
-### Web
-# HTTP -> HTTPS リダイレクト
-server {
-	listen 80;
-	listen [::]:80;
-
-	server_name splatoon3-tracker.nagiyu.com;
-
-	return 301 https://$host$request_uri;
-}
