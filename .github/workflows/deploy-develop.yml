@@ -2,8 +2,8 @@ name: deploy-develop
 
 on:
   push:
-    branches:
-      - develop
+    # branches:
+    #   - develop
   workflow_dispatch:
 
 jobs:
@@ -54,8 +54,8 @@ jobs:
         key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
         port: ${{ secrets.XSERVER_SSH_PORT }}
         script: |
-          sudo rm -rf /etc/nginx/sites-enabled/splatoon3-tracker
-          sudo rm -rf /etc/nginx/sites-available/splatoon3-tracker
+          sudo rm -rf /etc/nginx/sites-enabled/dev-splatoon3-tracker
+          sudo rm -rf /etc/nginx/sites-available/dev-splatoon3-tracker
           sudo rm -rf ${{ secrets.DEVELOP_TARGET_PATH }}/nginx
 
     - name: Upload Nginx Settings to server
@@ -76,8 +76,8 @@ jobs:
         key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
         port: ${{ secrets.XSERVER_SSH_PORT }}
         script: |
-          sudo cp ${{ secrets.DEVELOP_TARGET_PATH }}/nginx/splatoon3-tracker /etc/nginx/sites-available/
-          sudo ln -s /etc/nginx/sites-available/splatoon3-tracker /etc/nginx/sites-enabled/
+          sudo cp ${{ secrets.DEVELOP_TARGET_PATH }}/nginx/dev-splatoon3-tracker /etc/nginx/sites-available/
+          sudo ln -s /etc/nginx/sites-available/dev-splatoon3-tracker /etc/nginx/sites-enabled/
           sudo systemctl restart nginx
 
     - name: Remove all files in target path
@@ -89,7 +89,7 @@ jobs:
         port: ${{ secrets.XSERVER_SSH_PORT }}
         script: |
           cd ${{ secrets.DEVELOP_TARGET_PATH }}/containers
-          docker compose -f docker-compose.yml -p develop_splatoon3-tracker down --rmi all --volumes --remove-orphans
+          docker compose -f docker-compose.yml -p develop_dev-splatoon3-tracker down --rmi all --volumes --remove-orphans
           docker volume prune -f && docker image prune -f && docker builder prune -f
           sudo rm -Rf *
 
@@ -113,4 +113,4 @@ jobs:
         script: |
           cd ${{ secrets.DEVELOP_TARGET_PATH }}/containers
           docker compose -f docker-compose.yml build --no-cache
-          docker compose -f docker-compose.yml -p develop_splatoon3-tracker up -d
+          docker compose -f docker-compose.yml -p develop_dev-splatoon3-tracker up -d
