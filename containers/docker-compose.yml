@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: "${PROJECT_NAME}_web"
     ports:
-      - "xxx:443" # TODO: 書き換え
+      - "9022:443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=https://+:443
@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
     container_name: "${PROJECT_NAME}_localstack"
     ports:
-      - "xxx:4566" # TODO: 書き換え
+      - "9023:4566"
     environment:
       - SERVICES=kms,dynamodb
       - DEBUG=1

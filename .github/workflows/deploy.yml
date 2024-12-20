@@ -33,103 +33,103 @@ jobs:
       run: dotnet publish --configuration Release home/web/Nagiyu.Web.csproj
 
     - name: Copy files
-      run: cp -r home/web/bin/Release/net8.0/publish containers/nagiyu/bin
+      run: cp -r home/web/bin/Release/net8.0/publish bin
 
-    # - name: Add Certificates
-    #   run: |
-    #     echo '${{ secrets.PRODUCTION_FULLCHAIN }}' > containers/nagiyu/fullchain.pem
-    #     echo '${{ secrets.PRODUCTION_PRIVATE_KEY }}' > containers/nagiyu/privkey.pem
+    - name: Add Certificates
+      run: |
+        echo '${{ secrets.PRODUCTION_FULLCHAIN }}' > bin/fullchain.pem
+        echo '${{ secrets.PRODUCTION_PRIVATE_KEY }}' > bin/privkey.pem
 
-    # - name: Update appsettings.json
-    #   run: echo '${{ secrets.PRODUCTION_APPSETTINGS }}' > bin/appsettings.json
+    - name: Update appsettings.json
+      run: echo '${{ secrets.PRODUCTION_APPSETTINGS }}' > bin/appsettings.json
 
-    # - name: Remove Nginx Settings in target path
-    #   uses: appleboy/ssh-action@master
-    #   with:
-    #     host: ${{ secrets.XSERVER_SSH_HOST }}
-    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
-    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
-    #     port: ${{ secrets.XSERVER_SSH_PORT }}
-    #     script: |
-    #       sudo rm -rf /etc/nginx/sites-enabled/nagiyu
-    #       sudo rm -rf /etc/nginx/sites-available/nagiyu
-    #       sudo rm -rf ${{ secrets.PRODUCTION_TARGET_PATH }}/nginx
+    - name: Remove Nginx Settings in target path
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.XSERVER_SSH_HOST }}
+        username: ${{ secrets.XSERVER_SSH_USERNAME }}
+        key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.XSERVER_SSH_PORT }}
+        script: |
+          sudo rm -rf /etc/nginx/sites-enabled/splatoon3-tracker
+          sudo rm -rf /etc/nginx/sites-available/splatoon3-tracker
+          sudo rm -rf ${{ secrets.PRODUCTION_TARGET_PATH }}/nginx
 
-    # - name: Upload Nginx Settings to server
-    #   uses: appleboy/scp-action@master
-    #   with:
-    #     host: ${{ secrets.XSERVER_SSH_HOST }}
-    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
-    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
-    #     port: ${{ secrets.XSERVER_SSH_PORT }}
-    #     source: nginx/*
-    #     target: ${{ secrets.PRODUCTION_TARGET_PATH }}
+    - name: Upload Nginx Settings to server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.XSERVER_SSH_HOST }}
+        username: ${{ secrets.XSERVER_SSH_USERNAME }}
+        key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.XSERVER_SSH_PORT }}
+        source: nginx/*
+        target: ${{ secrets.PRODUCTION_TARGET_PATH }}
 
-    # - name: Replace nginx configuration and Reload nginx
-    #   uses: appleboy/ssh-action@master
-    #   with:
-    #     host: ${{ secrets.XSERVER_SSH_HOST }}
-    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
-    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
-    #     port: ${{ secrets.XSERVER_SSH_PORT }}
-    #     script: |
-    #       sudo cp ${{ secrets.PRODUCTION_TARGET_PATH }}/nginx/nagiyu /etc/nginx/sites-available/
-    #       sudo ln -s /etc/nginx/sites-available/nagiyu /etc/nginx/sites-enabled/
-    #       sudo systemctl restart nginx
+    - name: Replace nginx configuration and Reload nginx
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.XSERVER_SSH_HOST }}
+        username: ${{ secrets.XSERVER_SSH_USERNAME }}
+        key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.XSERVER_SSH_PORT }}
+        script: |
+          sudo cp ${{ secrets.PRODUCTION_TARGET_PATH }}/nginx/splatoon3-tracker /etc/nginx/sites-available/
+          sudo ln -s /etc/nginx/sites-available/splatoon3-tracker /etc/nginx/sites-enabled/
+          sudo systemctl restart nginx
 
-    # - name: Public IP Install
-    #   id: ip
-    #   uses: haythem/public-ip@v1.3
+    - name: Public IP Install
+      id: ip
+      uses: haythem/public-ip@v1.3
 
-    # - name: AWS CLI install
-    #   run: |
-    #     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-    #     unzip awscliv2.zip
-    #     sudo ./aws/install --update
-    #     aws --version
+    - name: AWS CLI install
+      run: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install --update
+        aws --version
 
-    # - name: AWS set Credentials
-    #   uses: aws-actions/configure-aws-credentials@v1
-    #   with:
-    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #     aws-region: ${{ secrets.AWS_REGION }}
+    - name: AWS set Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
-    # - name: Open SecurityGroup
-    #   run: aws ec2 authorize-security-group-ingress --group-id ${{ secrets.EC2_SECURITY_GROUP_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+    - name: Open SecurityGroup
+      run: aws ec2 authorize-security-group-ingress --group-id ${{ secrets.EC2_SECURITY_GROUP_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
-    # - name: Remove all files in target path
-    #   uses: appleboy/ssh-action@master
-    #   with:
-    #     host: ${{ secrets.AWS_SSH_HOST }}
-    #     username: ${{ secrets.AWS_SSH_USERNAME }}
-    #     key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
-    #     port: ${{ secrets.AWS_SSH_PORT }}
-    #     script: |
-    #       kill $(ps aux | grep '[d]otnet' | awk '{print $2}')
-    #       cd /home/ec2-user/nagiyu/bin
-    #       sudo rm -Rf *
+    - name: Remove all files in target path
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.AWS_SSH_HOST }}
+        username: ${{ secrets.AWS_SSH_USERNAME }}
+        key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.AWS_SSH_PORT }}
+        script: |
+          kill $(ps aux | grep '[d]otnet' | awk '{print $2}')
+          cd /home/ec2-user/splatoon3-tracker/bin
+          sudo rm -Rf *
 
-    # - name: Upload artifact to server
-    #   uses: appleboy/scp-action@master
-    #   with:
-    #     host: ${{ secrets.AWS_SSH_HOST }}
-    #     username: ${{ secrets.AWS_SSH_USERNAME }}
-    #     key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
-    #     port: ${{ secrets.AWS_SSH_PORT }}
-    #     source: bin/*
-    #     target: /home/ec2-user/nagiyu
+    - name: Upload artifact to server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.AWS_SSH_HOST }}
+        username: ${{ secrets.AWS_SSH_USERNAME }}
+        key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.AWS_SSH_PORT }}
+        source: bin/*
+        target: /home/ec2-user/splatoon3-tracker
 
-    # - name: Recreate Nagiyu
-    #   uses: appleboy/ssh-action@master
-    #   with:
-    #     host: ${{ secrets.AWS_SSH_HOST }}
-    #     username: ${{ secrets.AWS_SSH_USERNAME }}
-    #     key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
-    #     port: ${{ secrets.AWS_SSH_PORT }}
-    #     script: |
-    #       cd /home/ec2-user/nagiyu/bin
-    #       nohup dotnet Nagiyu.Web.dll --urls "http://0.0.0.0:5000" > /home/ec2-user/output.log 2>&1 &
+    - name: Recreate Splatoon3 Tracker
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.AWS_SSH_HOST }}
+        username: ${{ secrets.AWS_SSH_USERNAME }}
+        key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.AWS_SSH_PORT }}
+        script: |
+          cd /home/ec2-user/splatoon3-tracker/bin
+          nohup dotnet Nagiyu.Web.dll --urls "http://0.0.0.0:5000" > /home/ec2-user/output.log 2>&1 &
 
-    # - name: Close SecurityGroup
-    #   run: aws ec2 revoke-security-group-ingress --group-id ${{ secrets.EC2_SECURITY_GROUP_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+    - name: Close SecurityGroup
+      run: aws ec2 revoke-security-group-ingress --group-id ${{ secrets.EC2_SECURITY_GROUP_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
