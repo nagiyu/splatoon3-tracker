@@ -38,79 +38,79 @@ jobs:
     # - name: Add .env
     #   run: echo "${{ secrets.DEVELOP_ENV }}" > containers/.env
 
-    # - name: Add Certificates
-    #   run: |
-    #     echo '${{ secrets.DEVELOP_FULLCHAIN }}' > containers/nagiyu/fullchain.pem
-    #     echo '${{ secrets.DEVELOP_PRIVATE_KEY }}' > containers/nagiyu/privkey.pem
+    - name: Add Certificates
+      run: |
+        echo '${{ secrets.DEVELOP_FULLCHAIN }}' > containers/nagiyu/fullchain.pem
+        echo '${{ secrets.DEVELOP_PRIVATE_KEY }}' > containers/nagiyu/privkey.pem
 
-    # - name: Update appsettings.json
-    #   run: echo '${{ secrets.DEVELOP_APPSETTINGS }}' > containers/nagiyu/bin/appsettings.json
+    - name: Update appsettings.json
+      run: echo '${{ secrets.DEVELOP_APPSETTINGS }}' > containers/nagiyu/bin/appsettings.json
 
-    # - name: Remove Nginx Settings in target path
-    #   uses: appleboy/ssh-action@master
-    #   with:
-    #     host: ${{ secrets.XSERVER_SSH_HOST }}
-    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
-    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
-    #     port: ${{ secrets.XSERVER_SSH_PORT }}
-    #     script: |
-    #       sudo rm -rf /etc/nginx/sites-enabled/nagiyu
-    #       sudo rm -rf /etc/nginx/sites-available/nagiyu
-    #       sudo rm -rf ${{ secrets.DEVELOP_TARGET_PATH }}/nginx
+    - name: Remove Nginx Settings in target path
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.XSERVER_SSH_HOST }}
+        username: ${{ secrets.XSERVER_SSH_USERNAME }}
+        key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.XSERVER_SSH_PORT }}
+        script: |
+          sudo rm -rf /etc/nginx/sites-enabled/splatoon3-tracker
+          sudo rm -rf /etc/nginx/sites-available/splatoon3-tracker
+          sudo rm -rf ${{ secrets.DEVELOP_TARGET_PATH }}/nginx
 
-    # - name: Upload Nginx Settings to server
-    #   uses: appleboy/scp-action@master
-    #   with:
-    #     host: ${{ secrets.XSERVER_SSH_HOST }}
-    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
-    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
-    #     port: ${{ secrets.XSERVER_SSH_PORT }}
-    #     source: nginx/*
-    #     target: ${{ secrets.DEVELOP_TARGET_PATH }}
+    - name: Upload Nginx Settings to server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.XSERVER_SSH_HOST }}
+        username: ${{ secrets.XSERVER_SSH_USERNAME }}
+        key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.XSERVER_SSH_PORT }}
+        source: nginx/*
+        target: ${{ secrets.DEVELOP_TARGET_PATH }}
 
-    # - name: Replace nginx configuration and Reload nginx
-    #   uses: appleboy/ssh-action@master
-    #   with:
-    #     host: ${{ secrets.XSERVER_SSH_HOST }}
-    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
-    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
-    #     port: ${{ secrets.XSERVER_SSH_PORT }}
-    #     script: |
-    #       sudo cp ${{ secrets.DEVELOP_TARGET_PATH }}/nginx/nagiyu /etc/nginx/sites-available/
-    #       sudo ln -s /etc/nginx/sites-available/nagiyu /etc/nginx/sites-enabled/
-    #       sudo systemctl restart nginx
+    - name: Replace nginx configuration and Reload nginx
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.XSERVER_SSH_HOST }}
+        username: ${{ secrets.XSERVER_SSH_USERNAME }}
+        key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.XSERVER_SSH_PORT }}
+        script: |
+          sudo cp ${{ secrets.DEVELOP_TARGET_PATH }}/nginx/splatoon3-tracker /etc/nginx/sites-available/
+          sudo ln -s /etc/nginx/sites-available/splatoon3-tracker /etc/nginx/sites-enabled/
+          sudo systemctl restart nginx
 
-    # - name: Remove all files in target path
-    #   uses: appleboy/ssh-action@master
-    #   with:
-    #     host: ${{ secrets.XSERVER_SSH_HOST }}
-    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
-    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
-    #     port: ${{ secrets.XSERVER_SSH_PORT }}
-    #     script: |
-    #       cd ${{ secrets.DEVELOP_TARGET_PATH }}/containers
-    #       docker compose -f docker-compose.yml -p develop_nagiyu down --rmi all --volumes --remove-orphans
-    #       docker volume prune -f && docker image prune -f && docker builder prune -f
-    #       sudo rm -Rf *
+    - name: Remove all files in target path
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.XSERVER_SSH_HOST }}
+        username: ${{ secrets.XSERVER_SSH_USERNAME }}
+        key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.XSERVER_SSH_PORT }}
+        script: |
+          cd ${{ secrets.DEVELOP_TARGET_PATH }}/containers
+          docker compose -f docker-compose.yml -p develop_splatoon3-tracker down --rmi all --volumes --remove-orphans
+          docker volume prune -f && docker image prune -f && docker builder prune -f
+          sudo rm -Rf *
 
-    # - name: Upload artifact to server
-    #   uses: appleboy/scp-action@master
-    #   with:
-    #     host: ${{ secrets.XSERVER_SSH_HOST }}
-    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
-    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
-    #     port: ${{ secrets.XSERVER_SSH_PORT }}
-    #     source: containers/*
-    #     target: ${{ secrets.DEVELOP_TARGET_PATH }}
+    - name: Upload artifact to server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.XSERVER_SSH_HOST }}
+        username: ${{ secrets.XSERVER_SSH_USERNAME }}
+        key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.XSERVER_SSH_PORT }}
+        source: containers/*
+        target: ${{ secrets.DEVELOP_TARGET_PATH }}
 
-    # - name: Recreate Nagiyu
-    #   uses: appleboy/ssh-action@master
-    #   with:
-    #     host: ${{ secrets.XSERVER_SSH_HOST }}
-    #     username: ${{ secrets.XSERVER_SSH_USERNAME }}
-    #     key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
-    #     port: ${{ secrets.XSERVER_SSH_PORT }}
-    #     script: |
-    #       cd ${{ secrets.DEVELOP_TARGET_PATH }}/containers
-    #       docker compose -f docker-compose.yml build --no-cache
-    #       docker compose -f docker-compose.yml -p develop_nagiyu up -d
+    - name: Recreate Splatoon3 Tracker
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.XSERVER_SSH_HOST }}
+        username: ${{ secrets.XSERVER_SSH_USERNAME }}
+        key: ${{ secrets.XSERVER_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.XSERVER_SSH_PORT }}
+        script: |
+          cd ${{ secrets.DEVELOP_TARGET_PATH }}/containers
+          docker compose -f docker-compose.yml build --no-cache
+          docker compose -f docker-compose.yml -p develop_splatoon3-tracker up -d
