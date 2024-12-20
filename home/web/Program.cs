@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Nagiyu.Auth.Web.Controllers;
+using Nagiyu.Auth.Web.Middlewares;
 using Nagiyu.Common.Auth.Service.Services;
-using Nagiyu.Common.Auth.Web.Controllers;
-using Nagiyu.Common.Auth.Web.Middlewares;
 using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);

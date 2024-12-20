@@ -5,7 +5,7 @@ using Nagiyu.Common.Auth.Service.Models;
 using Nagiyu.Common.Auth.Service.Services;
 using System.Threading.Tasks;
 
-namespace Nagiyu.Common.Auth.Web.Controllers
+namespace Nagiyu.Auth.Web.Controllers
 {
     /// <summary>
     /// アカウントコントローラー
@@ -87,6 +87,15 @@ namespace Nagiyu.Common.Auth.Web.Controllers
             await authService.UpdateUser(user);
 
             return Redirect("/");
+        }
+
+        [HttpGet]
+        [Route("api/account/user")]
+        public async Task<IActionResult> GetUser()
+        {
+            var user = await authService.GetUser<UserAuthBase>();
+
+            return Json(user);
         }
 
         /// <summary>

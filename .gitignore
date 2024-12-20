@@ -395,3 +395,8 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Custom
+home/web/wwwroot/js/dist
+**/*client/assets/*
+**/*client/*.html

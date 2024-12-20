@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ESNext", // モダンブラウザ向けに最適化
+    "module": "ESNext", // ESM（ES Modules）を使う
+    "moduleResolution": "Node", // Node.jsのモジュール解決
+    "strict": true, // 厳格モード
+    "jsx": "preserve", // JSXを使えるように
+    "esModuleInterop": true, // ESMとCJSの互換性
+    "forceConsistentCasingInFileNames": true, // ファイル名の大文字・小文字チェック
+    "skipLibCheck": true, // 型定義ファイルのチェックをスキップ
+    "baseUrl": ".", // ベースディレクトリ
+    "paths": {
+      "@auth/*": [
+        "auth/client/*"
+      ],
+    },
+    "experimentalDecorators": true // デコレータを使えるように
+  },
+  "include": [
+    "**/*",
+    "**/*.d.ts",
+    "**/*.tsx",
+    "**/*.vue"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ] // ビルド結果と依存関係を除外
+}
