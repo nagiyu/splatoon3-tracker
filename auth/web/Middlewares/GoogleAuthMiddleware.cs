@@ -3,7 +3,7 @@ using Nagiyu.Common.Auth.Service.Models;
 using Nagiyu.Common.Auth.Service.Services;
 using System.Threading.Tasks;
 
-namespace Nagiyu.Common.Auth.Web.Middlewares
+namespace Nagiyu.Auth.Web.Middlewares
 {
     /// <summary>
     /// Google 認証ミドルウェア

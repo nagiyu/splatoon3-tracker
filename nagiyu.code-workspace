@@ -16,12 +16,38 @@
             "ms-vscode-remote.remote-ssh",
             "ahmadalli.vscode-nginx-conf",
             "wayou.vscode-todo-highlight",
+            "vue.volar",
+            "dbaeumer.vscode-eslint",
         ]
     },
     "settings": {
         "editor.renderWhitespace": "boundary",
         "[shellscript]": {
             "editor.tabSize": 2
-        }
+        },
+        "[typescript]": {
+            "editor.tabSize": 2
+        },
+        "[jsonc]": {
+            "editor.tabSize": 2
+        },
+        "[javascript]": {
+            "editor.tabSize": 2
+        },
+        "[vue]": {
+            "editor.tabSize": 2
+        },
+        "[html]": {
+            "editor.tabSize": 2
+        },
+        "editor.codeActionsOnSave": {
+            "source.fixAll.eslint": "always"
+        },
+        "eslint.validate": [
+            "javascript",
+            "typescript",
+            "vue"
+        ],
+        "editor.formatOnSave": true
     },
 }
