@@ -2,8 +2,8 @@ name: deploy
 
 on:
   push:
-    branches:
-      - master
+    # branches:
+    #   - master
   workflow_dispatch:
 
 jobs:
@@ -165,38 +165,38 @@ jobs:
           --output text)
         echo "AMI_ID=${AMI_ID}" >> $GITHUB_ENV
 
-    - name: Wait for AMI to become available
-      run: |
-        while true; do
-          STATE=$(aws ec2 describe-images \
-            --image-ids ${{ env.AMI_ID }} \
-            --query 'Images[0].State' \
-            --output text)
-          echo "Current AMI state: $STATE"
-          if [ "$STATE" == "available" ]; then
-            echo "AMI is now available!"
-            break
-          fi
-          echo "Waiting for AMI to become available..."
-          sleep 15
-        done
+    # - name: Wait for AMI to become available
+    #   run: |
+    #     while true; do
+    #       STATE=$(aws ec2 describe-images \
+    #         --image-ids ${{ env.AMI_ID }} \
+    #         --query 'Images[0].State' \
+    #         --output text)
+    #       echo "Current AMI state: $STATE"
+    #       if [ "$STATE" == "available" ]; then
+    #         echo "AMI is now available!"
+    #         break
+    #       fi
+    #       echo "Waiting for AMI to become available..."
+    #       sleep 15
+    #     done
 
-    - name: Update Launch Template
-      id: update_template
-      run: |
-        NEW_VERSION=$(aws ec2 create-launch-template-version \
-          --launch-template-id ${{ secrets.AWS_LAUNCH_TEMPLATE_ID }} \
-          --version-description "Updated for new build" \
-          --source-version 4 \
-          --launch-template-data '{"ImageId":"'"${{ env.AMI_ID }}"'"}' \
-          --query 'LaunchTemplateVersion.VersionNumber' \
-          --output text)
-        echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+    # - name: Update Launch Template
+    #   id: update_template
+    #   run: |
+    #     NEW_VERSION=$(aws ec2 create-launch-template-version \
+    #       --launch-template-id ${{ secrets.AWS_LAUNCH_TEMPLATE_ID }} \
+    #       --version-description "Updated for new build" \
+    #       --source-version 4 \
+    #       --launch-template-data '{"ImageId":"'"${{ env.AMI_ID }}"'"}' \
+    #       --query 'LaunchTemplateVersion.VersionNumber' \
+    #       --output text)
+    #     echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
 
-    - name: Trigger Rolling Update
-      run: |
-        aws autoscaling update-auto-scaling-group \
-          --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}" \
-          --launch-template "LaunchTemplateName=${{ secrets.AWS_LAUNCH_TEMPLATE_NAME }},Version=${{ env.NEW_VERSION }}"
-        aws autoscaling start-instance-refresh \
-          --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}"
+    # - name: Trigger Rolling Update
+    #   run: |
+    #     aws autoscaling update-auto-scaling-group \
+    #       --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}" \
+    #       --launch-template "LaunchTemplateName=${{ secrets.AWS_LAUNCH_TEMPLATE_NAME }},Version=${{ env.NEW_VERSION }}"
+    #     aws autoscaling start-instance-refresh \
+    #       --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}"
