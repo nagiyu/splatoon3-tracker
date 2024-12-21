@@ -48,13 +48,23 @@ jobs:
       env:
         AWS_REGION: ${{ secrets.AWS_REGION }}
 
-    - name: Output Target Instance ID and IP
-      run: |
-        echo "INSTANCE_ID: ${{ env.INSTANCE_ID }}"
-        echo "INSTANCE_IP: ${{ env.INSTANCE_IP }}"
-
     - name: Open SecurityGroup
       run: aws ec2 authorize-security-group-ingress --group-id ${{ secrets.EC2_SECURITY_GROUP_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
     - name: Close SecurityGroup
       run: aws ec2 revoke-security-group-ingress --group-id ${{ secrets.EC2_SECURITY_GROUP_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+    - name: Create New AMI
+      id: create_ami
+      run: |
+        AMI_ID=$(aws ec2 create-image \
+          --instance-id ${{ env.INSTANCE_ID }} \
+          --name "Splatoon3Tracker-$(date +%Y%m%d%H%M%S)" \
+          --no-reboot \
+          --query 'ImageId' \
+          --output text)
+        echo "AMI_ID=${AMI_ID}" >> $GITHUB_ENV
+
+    - name: Output New AMI ID
+      run: |
+        echo "AMI_ID: ${{ env.AMI_ID }}"
