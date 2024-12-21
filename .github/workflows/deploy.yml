@@ -165,6 +165,22 @@ jobs:
           --output text)
         echo "AMI_ID=${AMI_ID}" >> $GITHUB_ENV
 
+    - name: Wait for AMI to become available
+      run: |
+        while true; do
+          STATE=$(aws ec2 describe-images \
+            --image-ids ${{ env.AMI_ID }} \
+            --query 'Images[0].State' \
+            --output text)
+          echo "Current AMI state: $STATE"
+          if [ "$STATE" == "available" ]; then
+            echo "AMI is now available!"
+            break
+          fi
+          echo "Waiting for AMI to become available..."
+          sleep 15
+        done
+
     - name: Update Launch Template
       id: update_template
       run: |
