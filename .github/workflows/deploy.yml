@@ -95,13 +95,33 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
+    - name: Get Target Instance ID and IP
+      id: get_instance
+      run: |
+        INSTANCE_IDS=$(aws autoscaling describe-auto-scaling-groups \
+          --auto-scaling-group-names "${{ secrets.AWS_ASG_NAME }}" \
+          --query "AutoScalingGroups[0].Instances[?LifecycleState=='InService'].InstanceId" \
+          --output text)
+
+        INSTANCE_ID=$(echo "$INSTANCE_IDS" | awk '{print $1}')
+
+        INSTANCE_IP=$(aws ec2 describe-instances \
+          --instance-ids $INSTANCE_ID \
+          --query "Reservations[0].Instances[0].PublicIpAddress" \
+          --output text)
+
+        echo "INSTANCE_ID=${INSTANCE_ID}" >> $GITHUB_ENV
+        echo "INSTANCE_IP=${INSTANCE_IP}" >> $GITHUB_ENV
+      env:
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+
     - name: Open SecurityGroup
       run: aws ec2 authorize-security-group-ingress --group-id ${{ secrets.EC2_SECURITY_GROUP_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
     - name: Remove all files in target path
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ secrets.AWS_SSH_HOST }}
+        host: ${{ env.INSTANCE_IP }}
         username: ${{ secrets.AWS_SSH_USERNAME }}
         key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
         port: ${{ secrets.AWS_SSH_PORT }}
@@ -113,7 +133,7 @@ jobs:
     - name: Upload artifact to server
       uses: appleboy/scp-action@master
       with:
-        host: ${{ secrets.AWS_SSH_HOST }}
+        host: ${{ env.INSTANCE_IP }}
         username: ${{ secrets.AWS_SSH_USERNAME }}
         key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
         port: ${{ secrets.AWS_SSH_PORT }}
@@ -123,7 +143,7 @@ jobs:
     - name: Recreate Splatoon3 Tracker
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ secrets.AWS_SSH_HOST }}
+        host: ${{ env.INSTANCE_IP }}
         username: ${{ secrets.AWS_SSH_USERNAME }}
         key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
         port: ${{ secrets.AWS_SSH_PORT }}
@@ -133,3 +153,34 @@ jobs:
 
     - name: Close SecurityGroup
       run: aws ec2 revoke-security-group-ingress --group-id ${{ secrets.EC2_SECURITY_GROUP_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+    - name: Create New AMI
+      id: create_ami
+      run: |
+        AMI_ID=$(aws ec2 create-image \
+          --instance-id ${{ env.INSTANCE_ID }} \
+          --name "Splatoon3Tracker-$(date +%Y%m%d%H%M%S)" \
+          --no-reboot \
+          --query 'ImageId' \
+          --output text)
+        echo "AMI_ID=${AMI_ID}" >> $GITHUB_ENV
+
+    - name: Update Launch Template
+      id: update_template
+      run: |
+        NEW_VERSION=$(aws ec2 create-launch-template-version \
+          --launch-template-id ${{ secrets.AWS_LAUNCH_TEMPLATE_ID }} \
+          --version-description "Updated for new build" \
+          --source-version 4 \
+          --launch-template-data '{"ImageId":"'"${{ env.AMI_ID }}"'"}' \
+          --query 'LaunchTemplateVersion.VersionNumber' \
+          --output text)
+        echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+
+    - name: Trigger Rolling Update
+      run: |
+        aws autoscaling update-auto-scaling-group \
+          --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}" \
+          --launch-template "LaunchTemplateName=${{ secrets.AWS_LAUNCH_TEMPLATE_NAME }},Version=${{ env.NEW_VERSION }}"
+        aws autoscaling start-instance-refresh \
+          --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}"
