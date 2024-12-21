@@ -32,7 +32,7 @@ jobs:
       id: get_instance
       run: |
         INSTANCE_ID=$(aws autoscaling describe-auto-scaling-groups \
-          --auto-scaling-group-names ${{ secrets.AWS_ASG_NAME }} \
+          --auto-scaling-group-names "${{ secrets.AWS_ASG_NAME }}" \
           --query "AutoScalingGroups[0].Instances[?LifecycleState=='InService'].InstanceId" \
           --output text)
 
