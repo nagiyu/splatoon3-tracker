@@ -76,3 +76,11 @@ jobs:
           --query 'LaunchTemplateVersion.VersionNumber' \
           --output text)
         echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+
+    - name: Trigger Rolling Update
+      run: |
+        aws autoscaling update-auto-scaling-group \
+          --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}" \
+          --launch-template "LaunchTemplateName=${{ secrets.AWS_LAUNCH_TEMPLATE_NAME },Version=${{ env.NEW_VERSION }}"
+        aws autoscaling start-instance-refresh \
+          --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}"
