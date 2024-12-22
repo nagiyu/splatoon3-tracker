@@ -211,7 +211,7 @@ jobs:
       run: |
         USER_DATA=$(echo -n '#!/bin/bash
         cd /home/ec2-user/splatoon3-tracker/bin
-        nohup dotnet Nagiyu.Web.dll --urls "https://0.0.0.0:5000" > /home/ec2-user/output.log 2>&1 &' | base64)
+        nohup dotnet Nagiyu.Web.dll --urls "https://0.0.0.0:5000" > /home/ec2-user/output.log 2>&1 &' | base64 | tr -d '\n')
 
         NEW_VERSION=$(aws ec2 create-launch-template-version \
           --launch-template-id ${{ secrets.AWS_LAUNCH_TEMPLATE_ID }} \
