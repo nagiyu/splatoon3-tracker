@@ -225,10 +225,10 @@ jobs:
     - name: Terminate temporary instance
       run: aws ec2 terminate-instances --instance-ids ${{ env.TEMP_INSTANCE_ID }}
 
-    # - name: Trigger Rolling Update
-    #   run: |
-    #     aws autoscaling update-auto-scaling-group \
-    #       --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}" \
-    #       --launch-template "LaunchTemplateName=${{ secrets.AWS_LAUNCH_TEMPLATE_NAME }},Version=${{ env.NEW_VERSION }}"
-    #     aws autoscaling start-instance-refresh \
-    #       --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}"
+    - name: Trigger Rolling Update
+      run: |
+        aws autoscaling update-auto-scaling-group \
+          --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}" \
+          --launch-template "LaunchTemplateName=${{ secrets.AWS_LAUNCH_TEMPLATE_NAME }},Version=${{ env.NEW_VERSION }}"
+        aws autoscaling start-instance-refresh \
+          --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}"
