@@ -100,6 +100,7 @@ jobs:
       run: |
         INSTANCE_ID=$(aws ec2 run-instances \
           --launch-template LaunchTemplateId=${{ secrets.AWS_LAUNCH_TEMPLATE_ID }},Version=$Latest \
+          --network-interfaces '[{"SubnetId":"${{ secrets.AWS_SUBNET_ID }}","DeviceIndex":0,"AssociatePublicIpAddress":true,"Groups":["${{ secrets.AWS_SECURITY_GROUP_ID }}"]}]' \
           --query 'Instances[0].InstanceId' \
           --output text)
         echo "TEMP_INSTANCE_ID=${INSTANCE_ID}" >> $GITHUB_ENV
