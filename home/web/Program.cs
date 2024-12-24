@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nagiyu.Auth.Web.Controllers;
@@ -35,6 +36,9 @@ builder.WebHost.ConfigureKestrel(options =>
             httpsOptions.ServerCertificate = certificate;
         });
     }
+
+    // 全環境共通のヘルスチェック用HTTP
+    options.ListenAnyIP(8080); // ヘルスチェックポート
 });
 
 // Add services to the container.
@@ -83,6 +87,11 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}");
+
+    endpoints.Map("/health", () =>
+    {
+        Results.Ok("Healthy");
+    }).AllowAnonymous();
 });
 
 app.Run();
