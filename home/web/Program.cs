@@ -21,21 +21,31 @@ builder.WebHost.ConfigureKestrel(options =>
 {
     var environment = builder.Environment.EnvironmentName;
 
-    if (environment == "Production")
+    // HTTPS（本番用の証明書）
+    options.ListenAnyIP(443, listenOptions =>
     {
-        // 本番環境（Let’s Encrypt 証明書を使用）
-        options.ConfigureHttpsDefaults(httpsOptions =>
+        listenOptions.UseHttps(httpsOptions =>
         {
-            // .pem ファイルを直接指定
-            var certificate = X509Certificate2.CreateFromPemFile(
-                builder.Configuration["Auth:Certificates:FullchainPath"],
-                builder.Configuration["Auth:Certificates:PrivatekeyPath"]
-            );
+            if (environment == "Production")
+            {
+                // 本番環境（Let’s Encrypt 証明書を使用）
+                options.ConfigureHttpsDefaults(httpsOptions =>
+                {
+                    // .pem ファイルを直接指定
+                    var certificate = X509Certificate2.CreateFromPemFile(
+                        builder.Configuration["Auth:Certificates:FullchainPath"],
+                        builder.Configuration["Auth:Certificates:PrivatekeyPath"]
+                    );
 
-            // Kestrel に証明書を設定
-            httpsOptions.ServerCertificate = certificate;
+                    // Kestrel に証明書を設定
+                    httpsOptions.ServerCertificate = certificate;
+                });
+            }
         });
-    }
+    });
+
+    // HTTP（ヘルスチェック専用）
+    options.ListenAnyIP(8080); // ポート8080でリッスン
 });
 
 // Add services to the container.
