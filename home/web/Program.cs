@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nagiyu.Auth.Web.Controllers;
@@ -68,7 +69,28 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.Use(async (context, next) =>
+    {
+        // ヘルスチェックのパスの場合はリダイレクトしない
+        if (context.Request.Path.StartsWithSegments("/health"))
+        {
+            await next();
+        }
+        else if (!context.Request.IsHttps)
+        {
+            // HTTPSリダイレクト
+            var httpsUrl = $"https://{context.Request.Host}{context.Request.Path}{context.Request.QueryString}";
+            context.Response.Redirect(httpsUrl, permanent: true);
+        }
+        else
+        {
+            await next();
+        }
+    });
+}
+
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -83,6 +105,12 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}");
+
+    // ヘルスチェック（8080用）
+    endpoints.Map("/health", () =>
+    {
+        return Results.Ok("Healthy");
+    }).AllowAnonymous();
 });
 
 app.Run();
