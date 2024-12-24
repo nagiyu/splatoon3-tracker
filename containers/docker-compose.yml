@@ -5,10 +5,10 @@ services:
       dockerfile: Dockerfile
     container_name: "${PROJECT_NAME}_web"
     ports:
-      - "9022:5000"
+      - "9022:443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=https://+:5000
+      - ASPNETCORE_URLS=https://+:443
     volumes:
       - ./nagiyu/bin:/app
       - ./nagiyu/fullchain.pem:/etc/letsencrypt/fullchain.pem
