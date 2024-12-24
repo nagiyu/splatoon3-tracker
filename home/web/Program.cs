@@ -68,22 +68,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-if (!app.Environment.IsDevelopment())
-{
-    app.Use(async (context, next) =>
-    {
-        // ヘルスチェックのパスの場合、HTTPSリダイレクトをスキップ
-        if (context.Request.Path.StartsWithSegments("/health-check"))
-        {
-            await next();
-        }
-        else
-        {
-            context.Response.Redirect($"https://{context.Request.Host}{context.Request.Path}");
-        }
-    });
-}
-
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
