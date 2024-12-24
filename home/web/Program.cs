@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nagiyu.Auth.Web.Controllers;
@@ -76,6 +77,9 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseMiddleware<GoogleAuthMiddleware>();
 app.UseAuthorization();
+
+app.MapGet("/health", () => Results.Ok("Healthy"))
+    .AllowAnonymous();
 
 app.UseEndpoints(endpoints =>
 {

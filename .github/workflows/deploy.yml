@@ -140,7 +140,7 @@ jobs:
         key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
         port: ${{ secrets.AWS_SSH_PORT }}
         script: |
-          kill $(ps aux | grep '[d]otnet' | awk '{print $2}')
+          sudo kill $(ps aux | grep '[d]otnet' | awk '{print $2}')
           cd /home/ec2-user/splatoon3-tracker/bin
           sudo rm -Rf *
 
