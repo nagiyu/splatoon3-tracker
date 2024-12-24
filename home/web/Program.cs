@@ -22,7 +22,7 @@ builder.WebHost.ConfigureKestrel(options =>
     var environment = builder.Environment.EnvironmentName;
 
     // HTTPS（本番用の証明書）
-    options.ListenAnyIP(443, listenOptions =>
+    options.ListenAnyIP(5000, listenOptions =>
     {
         listenOptions.UseHttps(httpsOptions =>
         {
