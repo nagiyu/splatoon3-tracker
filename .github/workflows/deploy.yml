@@ -205,7 +205,7 @@ jobs:
       run: |
         LATEST_VERSION=$(aws ec2 describe-launch-template-versions \
           --launch-template-id ${{ secrets.AWS_LAUNCH_TEMPLATE_ID }} \
-          --query 'LaunchTemplateVersions[-1].VersionNumber' \
+          --query 'sort_by(LaunchTemplateVersions, &VersionNumber)[-1].VersionNumber' \
           --output text)
         echo "LATEST_VERSION=${LATEST_VERSION}" >> $GITHUB_ENV
 
