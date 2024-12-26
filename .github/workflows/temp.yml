@@ -43,26 +43,26 @@ jobs:
         echo "LATEST_VERSION=${LATEST_VERSION}"
         echo "AMI_ID=${{ env.AMI_ID }}"
 
-    # - name: Update Launch Template
-    #   id: update_template
-    #   run: |
-    #     USER_DATA=$(echo -n '#!/bin/bash
-    #     cd /home/ec2-user/splatoon3-tracker/bin
-    #     nohup dotnet Nagiyu.Web.dll --urls "https://0.0.0.0:5000" > /home/ec2-user/output.log 2>&1 &' | base64 | tr -d '\n')
+    - name: Update Launch Template
+      id: update_template
+      run: |
+        USER_DATA=$(echo -n '#!/bin/bash
+        cd /home/ec2-user/splatoon3-tracker/bin
+        nohup dotnet Nagiyu.Web.dll --urls "https://0.0.0.0:5000" > /home/ec2-user/output.log 2>&1 &' | base64 | tr -d '\n')
 
-    #     NEW_VERSION=$(aws ec2 create-launch-template-version \
-    #       --launch-template-id ${{ secrets.AWS_LAUNCH_TEMPLATE_ID }} \
-    #       --version-description "Updated for new build" \
-    #       --source-version ${{ env.LATEST_VERSION }} \
-    #       --launch-template-data '{"ImageId":"'"${{ env.AMI_ID }}"'","UserData":"'"$USER_DATA"'"}' \
-    #       --query 'LaunchTemplateVersion.VersionNumber' \
-    #       --output text)
-    #     echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+        NEW_VERSION=$(aws ec2 create-launch-template-version \
+          --launch-template-id ${{ secrets.AWS_LAUNCH_TEMPLATE_ID }} \
+          --version-description "Updated for new build" \
+          --source-version ${{ env.LATEST_VERSION }} \
+          --launch-template-data '{"ImageId":"'"${{ env.AMI_ID }}"'","UserData":"'"$USER_DATA"'"}' \
+          --query 'LaunchTemplateVersion.VersionNumber' \
+          --output text)
+        echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
 
-    # - name: Trigger Rolling Update
-    #   run: |
-    #     aws autoscaling update-auto-scaling-group \
-    #       --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}" \
-    #       --launch-template "LaunchTemplateName=${{ secrets.AWS_LAUNCH_TEMPLATE_NAME }},Version=${{ env.NEW_VERSION }}"
-    #     aws autoscaling start-instance-refresh \
-    #       --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}"
+    - name: Trigger Rolling Update
+      run: |
+        aws autoscaling update-auto-scaling-group \
+          --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}" \
+          --launch-template "LaunchTemplateName=${{ secrets.AWS_LAUNCH_TEMPLATE_NAME }},Version=${{ env.NEW_VERSION }}"
+        aws autoscaling start-instance-refresh \
+          --auto-scaling-group-name "${{ secrets.AWS_ASG_NAME }}"
