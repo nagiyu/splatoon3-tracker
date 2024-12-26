@@ -38,13 +38,6 @@ namespace Nagiyu.Auth.Web.Middlewares
         /// <param name="context">HTTP コンテキスト</param>
         public async Task InvokeAsync(HttpContext context)
         {
-            // ヘルスチェックのリクエストなら認証スキップ
-            if (context.Request.Path.StartsWithSegments("/health"))
-            {
-                await _next(context); // 認証をスキップ
-                return;
-            }
-
             // 認証状態の確認
             if (context.User.Identity?.IsAuthenticated ?? false)
             {
