@@ -95,25 +95,39 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Get Target Instance ID and IP
-      id: get_instance
+    - name: Launch temporary EC2 instance
+      id: launch_temp_instance
       run: |
-        INSTANCE_IDS=$(aws autoscaling describe-auto-scaling-groups \
-          --auto-scaling-group-names "${{ secrets.AWS_ASG_NAME }}" \
-          --query "AutoScalingGroups[0].Instances[?LifecycleState=='InService'].InstanceId" \
+        INSTANCE_ID=$(aws ec2 run-instances \
+          --launch-template LaunchTemplateId=${{ secrets.AWS_LAUNCH_TEMPLATE_ID }},Version=$Latest \
+          --network-interfaces '[{"SubnetId":"${{ secrets.AWS_SUBNET_ID }}","DeviceIndex":0,"AssociatePublicIpAddress":true,"Groups":["${{ secrets.AWS_SECURITY_GROUP_ID }}"]}]' \
+          --query 'Instances[0].InstanceId' \
           --output text)
+        echo "TEMP_INSTANCE_ID=${INSTANCE_ID}" >> $GITHUB_ENV
 
-        INSTANCE_ID=$(echo "$INSTANCE_IDS" | awk '{print $1}')
+    - name: Wait for temporary instance to become available
+      run: |
+        while true; do
+          STATE=$(aws ec2 describe-instances \
+            --instance-ids ${{ env.TEMP_INSTANCE_ID }} \
+            --query 'Reservations[0].Instances[0].State.Name' \
+            --output text)
+          echo "Current instance state: $STATE"
+          if [ "$STATE" == "running" ]; then
+            echo "Instance is now running!"
+            break
+          fi
+          echo "Waiting for instance to become running..."
+          sleep 15
+        done
 
+    - name: Get temporary instance IP
+      run: |
         INSTANCE_IP=$(aws ec2 describe-instances \
-          --instance-ids $INSTANCE_ID \
+          --instance-ids ${{ env.TEMP_INSTANCE_ID }} \
           --query "Reservations[0].Instances[0].PublicIpAddress" \
           --output text)
-
-        echo "INSTANCE_ID=${INSTANCE_ID}" >> $GITHUB_ENV
-        echo "INSTANCE_IP=${INSTANCE_IP}" >> $GITHUB_ENV
-      env:
-        AWS_REGION: ${{ secrets.AWS_REGION }}
+        echo "TEMP_INSTANCE_IP=${INSTANCE_IP}" >> $GITHUB_ENV
 
     - name: Open SecurityGroup
       run: aws ec2 authorize-security-group-ingress --group-id ${{ secrets.EC2_SECURITY_GROUP_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
@@ -121,7 +135,7 @@ jobs:
     - name: Remove all files in target path
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ env.INSTANCE_IP }}
+        host: ${{ env.TEMP_INSTANCE_IP }}
         username: ${{ secrets.AWS_SSH_USERNAME }}
         key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
         port: ${{ secrets.AWS_SSH_PORT }}
@@ -133,7 +147,7 @@ jobs:
     - name: Upload artifact to server
       uses: appleboy/scp-action@master
       with:
-        host: ${{ env.INSTANCE_IP }}
+        host: ${{ env.TEMP_INSTANCE_IP }}
         username: ${{ secrets.AWS_SSH_USERNAME }}
         key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
         port: ${{ secrets.AWS_SSH_PORT }}
@@ -143,7 +157,7 @@ jobs:
     - name: Recreate Splatoon3 Tracker
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ env.INSTANCE_IP }}
+        host: ${{ env.TEMP_INSTANCE_IP }}
         username: ${{ secrets.AWS_SSH_USERNAME }}
         key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
         port: ${{ secrets.AWS_SSH_PORT }}
@@ -154,13 +168,15 @@ jobs:
     - name: Close SecurityGroup
       run: aws ec2 revoke-security-group-ingress --group-id ${{ secrets.EC2_SECURITY_GROUP_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
-    - name: Create New AMI
-      id: create_ami
+    # - name: Stop Instance before AMI
+    #   run: aws ec2 stop-instances --instance-ids ${{ env.INSTANCE_ID }}
+
+    - name: Create AMI from temporary instance
+      id: create_temp_ami
       run: |
         AMI_ID=$(aws ec2 create-image \
-          --instance-id ${{ env.INSTANCE_ID }} \
-          --name "Splatoon3Tracker-$(date +%Y%m%d%H%M%S)" \
-          --no-reboot \
+          --instance-id ${{ env.TEMP_INSTANCE_ID }} \
+          --name "Splatoon3Tracker-Temp-$(date +%Y%m%d%H%M%S)" \
           --query 'ImageId' \
           --output text)
         echo "AMI_ID=${AMI_ID}" >> $GITHUB_ENV
@@ -181,14 +197,30 @@ jobs:
           sleep 15
         done
 
+    - name: Terminate temporary instance
+      run: aws ec2 terminate-instances --instance-ids ${{ env.TEMP_INSTANCE_ID }}
+
+    - name: Get latest launch template version
+      id: get_latest_version
+      run: |
+        LATEST_VERSION=$(aws ec2 describe-launch-template-versions \
+          --launch-template-id ${{ secrets.AWS_LAUNCH_TEMPLATE_ID }} \
+          --query 'sort_by(LaunchTemplateVersions, &VersionNumber)[-1].VersionNumber' \
+          --output text)
+        echo "LATEST_VERSION=${LATEST_VERSION}" >> $GITHUB_ENV
+
     - name: Update Launch Template
       id: update_template
       run: |
+        USER_DATA=$(echo -n '#!/bin/bash
+        cd /home/ec2-user/splatoon3-tracker/bin
+        nohup dotnet Nagiyu.Web.dll --urls "https://0.0.0.0:5000" > /home/ec2-user/output.log 2>&1 &' | base64 | tr -d '\n')
+
         NEW_VERSION=$(aws ec2 create-launch-template-version \
           --launch-template-id ${{ secrets.AWS_LAUNCH_TEMPLATE_ID }} \
           --version-description "Updated for new build" \
-          --source-version 4 \
-          --launch-template-data '{"ImageId":"'"${{ env.AMI_ID }}"'"}' \
+          --source-version ${{ env.LATEST_VERSION }} \
+          --launch-template-data '{"ImageId":"'"${{ env.AMI_ID }}"'","UserData":"'"$USER_DATA"'"}' \
           --query 'LaunchTemplateVersion.VersionNumber' \
           --output text)
         echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
